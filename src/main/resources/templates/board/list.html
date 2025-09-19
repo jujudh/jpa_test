@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>목록</title>
+    <link href="/main.css" rel="stylesheet">
+</head>
+
+<body>
+<div>
+    <a href="/insertForm">등록하기</a>
+</div>
+
+    <div class="card" th:each="i: ${boards}">
+        <div> <a th:href="@{ '/detail/'+ ${i.id} }">
+            <div>
+                <p th:text="${i.title}">제목</p>
+                <p th:text="${i.content}">내용</p>
+                <p th:text="${i.member.USR_NM}">사용자명</p>
+                <div th:each="comment : ${i.comments}">
+                    <p th:text="${comment.CMT_DESCRIPTION}">댓글 내용</p>
+                </div>
+            </div>
+        </a>
+        </div>
+    </div>
+
+</body>
+</html>

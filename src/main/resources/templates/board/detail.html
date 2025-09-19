@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>목록</title>
+    <link href="/main.css" rel="stylesheet">
+</head>
+
+<body>
+
+    <div class="detail">
+        <h4>상세페이지</h4>
+        <h4 th:text="${detail.title}">제목</h4>
+        <p th:text="${detail.content}">내용</p>
+
+        <a th:href="@{/updateForm/{id}(id=${detail.id})}">
+            <button type="button">수정</button>
+        </a>
+        <div>
+        <span th:onclick="fetch('/delete?id=[[${detail.id}]]',{method : 'POST'} )
+                    .then(r=>r.text())
+                    .then(()=>{
+                    window.location.href = '/list';})
+                    ">삭제</span></div>
+    </div>
+
+</body>
+</html>
