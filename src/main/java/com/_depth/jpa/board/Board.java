@@ -13,10 +13,15 @@ import java.util.List;
 @Entity
 @Getter
 @Setter
+@SequenceGenerator(
+        name = "BOARD_SEQ_GENERATOR"
+        ,sequenceName = "BOARD_SEQ"
+        ,initialValue = 1,allocationSize=1
+)
 public class Board {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "BOARD_SEQ_GENERATOR")
     public Long id;
 
     public String title;

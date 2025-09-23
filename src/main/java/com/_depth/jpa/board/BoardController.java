@@ -65,9 +65,15 @@ public class BoardController {
         return "redirect:/list";
     }
 
-    @PostMapping("/delete")
+/*    @PostMapping("/delete")
     ResponseEntity<Object> delete(@RequestParam Long id) {
         boardRepository.deleteById(id);
+        return ResponseEntity.status(200).body("삭제완료");
+    }*/
+
+    @PostMapping("/delete")
+    ResponseEntity<Object> delete(Board board) {
+        boardRepository.delete(board);
         return ResponseEntity.status(200).body("삭제완료");
     }
 
