@@ -2,6 +2,9 @@ package com._depth.jpa.board;
 
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -19,11 +22,27 @@ public class BoardController {
     private final BoardService boardService;
 
 
-    @GetMapping("/list")
+/*    @GetMapping("/list")
     String list(Model model) {
         //model.addAttribute("boards", boardRepository.findAll());
         List<Board> boards = boardRepository.findAll();
         model.addAttribute("boards", boards);
+        return "board/list.html";
+    }*/
+
+    @GetMapping("/list")
+    public String list(@RequestParam(defaultValue = "") String title,
+                       @RequestParam(defaultValue = "0") int page,
+                       @RequestParam(defaultValue = "10") int size,
+                       Model model) {
+
+        Pageable pageable = PageRequest.of(page, size);
+        Page<BoardResponseDto> boards = boardService.getBoards(title, pageable);
+
+        model.addAttribute("boards", boards.getContent());
+        System.out.println("boards: " + boards.getContent());
+        model.addAttribute("page", boards);
+
         return "board/list.html";
     }
 

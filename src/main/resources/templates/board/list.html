@@ -1,3 +1,4 @@
+<!--
 <!doctype html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
@@ -19,14 +20,71 @@
             <div>
                 <p th:text="${i.title}">제목</p>
                 <p th:text="${i.content}">내용</p>
-<!--                <p th:text="${i.member.USR_NM}">사용자명</p>-->
-<!--                <div th:each="comment : ${i.comments}">
+&lt;!&ndash;                <p th:text="${i.member.USR_NM}">사용자명</p>&ndash;&gt;
+&lt;!&ndash;                <div th:each="comment : ${i.comments}">
                     <p th:text="${comment.CMT_DESCRIPTION}">댓글 내용</p>
-                </div>-->
+                </div>&ndash;&gt;
             </div>
         </a>
         </div>
     </div>
+
+</body>
+</html>-->
+
+
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Board List</title>
+</head>
+<body>
+
+<h1>게시글 목록</h1>
+
+<form th:action="@{/list}" method="get">
+    <input type="text" name="title" th:value="${title}" placeholder="검색어">
+    <button type="submit">검색</button>
+</form>
+
+<table border="1">
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>제목</th>
+        <th>내용</th>
+        <th>작성자</th>
+        <th>댓글</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="board : ${boards}">
+        <td th:text="${board.boardId}"></td>
+        <td th:text="${board.title}"></td>
+        <td th:text="${board.content}"></td>
+        <td th:text="${board.writerName}"></td>
+        <td>
+            <ul>
+                <li th:each="c : ${board.comments}">
+                    <span th:text="${c.commentName}"></span> :
+                    <span th:text="${c.commentDescription}"></span>
+                </li>
+            </ul>
+        </td>
+    </tr>
+    </tbody>
+</table>
+
+<!-- 페이징 -->
+<div>
+    <span th:text="'페이지: ' + ${page.number + 1} + ' / ' + ${page.totalPages}"></span>
+    <div th:if="${page.hasPrevious()}">
+        <a th:href="@{/list(page=${page.number - 1}, title=${title})}">이전</a>
+    </div>
+    <div th:if="${page.hasNext()}">
+        <a th:href="@{/list(page=${page.number + 1}, title=${title})}">다음</a>
+    </div>
+</div>
 
 </body>
 </html>
