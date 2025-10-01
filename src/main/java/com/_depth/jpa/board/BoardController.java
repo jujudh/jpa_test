@@ -10,12 +10,15 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
 @Controller
 @RequiredArgsConstructor
 public class BoardController {
+
+    public record BoardReqeust(String id, String comment, LocalDateTime createdAt){};
 
     private final BoardRepository boardRepository;
 
@@ -31,6 +34,14 @@ public class BoardController {
     }*/
 
     @GetMapping("/list")
+    String list(@ModelAttribute BoardSearchDto searchDto, Model model) {
+        List<BoardDto> boards = boardService.search(searchDto);
+        model.addAttribute("boards", boards);
+        model.addAttribute("searchDto", searchDto);
+        return "board/list.html";
+    }
+
+/*    @GetMapping("/list")
     public String list(@RequestParam(defaultValue = "") String title,
                        @RequestParam(defaultValue = "0") int page,
                        @RequestParam(defaultValue = "10") int size,
@@ -44,7 +55,7 @@ public class BoardController {
         model.addAttribute("page", boards);
 
         return "board/list.html";
-    }
+    }*/
 
     @GetMapping("/detail/{id}")
     String detail(@PathVariable Long id, Model model) {

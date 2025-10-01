@@ -32,7 +32,7 @@
 </body>
 </html>-->
 
-
+<!--
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
@@ -75,7 +75,7 @@
     </tbody>
 </table>
 
-<!-- 페이징 -->
+&lt;!&ndash; 페이징 &ndash;&gt;
 <div>
     <span th:text="'페이지: ' + ${page.number + 1} + ' / ' + ${page.totalPages}"></span>
     <div th:if="${page.hasPrevious()}">
@@ -85,6 +85,45 @@
         <a th:href="@{/list(page=${page.number + 1}, title=${title})}">다음</a>
     </div>
 </div>
+
+</body>
+</html>-->
+
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>게시판 목록</title>
+</head>
+<body>
+<div>
+    <a href="/insertForm">등록하기</a>
+</div>
+<h1>게시판 목록</h1>
+<form th:action="@{/list}" method="get">
+    <input type="text" name="searchTitle" th:value="${searchDto.searchTitle}" placeholder="제목을 입력하세요.">
+    <button type="submit">검색</button>
+</form>
+<table border="1">
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>제목</th>
+        <th>내용</th>
+    </tr>
+    </thead>
+    <tbody>
+    <!-- boards는 Controller에서 model.addAttribute("boards", list); 로 전달 -->
+    <tr th:each="board : ${boards}">
+        <td th:text="${board.boardId}">1</td>
+        <td>
+            <a th:href="@{'/detail/' + ${board.boardId}}"
+               th:text="${board.title}">제목</a>
+        </td>
+        <td th:text="${board.content}">내용</td>
+    </tr>
+    </tbody>
+</table>
 
 </body>
 </html>

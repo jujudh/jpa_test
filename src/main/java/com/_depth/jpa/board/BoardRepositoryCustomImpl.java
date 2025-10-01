@@ -13,7 +13,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Repository
+/*@Repository
 @RequiredArgsConstructor
 public class BoardRepositoryCustomImpl implements BoardRepositoryCustom {
 
@@ -85,5 +85,5 @@ public class BoardRepositoryCustomImpl implements BoardRepositoryCustom {
 
         return new PageImpl<>(content, pageable, total);
     }
-}
+}*/
 

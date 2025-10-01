@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com._depth.jpa.board.BoardMapper">
+<!--    <select id="search" parameterType="com._depth.jpa.board.BoardSearchDto"
+            resultType="com._depth.jpa.board.BoardDto">
+        SELECT
+        b.id AS board_id,
+        b.title,
+        b.content,
+        m.usr_id AS writer_id,
+        m.usr_nm AS writer_name,
+        c.cmt_id,
+        c.cmt_name,
+        c.cmt_description,
+        (SELECT COUNT(*) FROM comment c1 WHERE c1.id = b.id) AS comment_count,
+        (SELECT COUNT(*) FROM board b2 WHERE b2.usr_id = m.usr_id) AS writer_board_count
+        FROM board b
+        JOIN member m ON b.usr_id = m.usr_id
+        LEFT JOIN comment c ON b.id = c.id
+        <where>
+            <if test="title != null and title != ''">
+                AND b.title LIKE CONCAT('%', #{title}, '%')
+            </if>
+        </where>
+        ORDER BY b.id DESC
+        LIMIT 1 OFFSET 0
+    </select>-->
+
+    <select id="search" parameterType="BoardSearchDto"
+            resultType="BoardDto">
+        SELECT
+            b.id AS boardId,
+            b.title,
+            b.content
+        FROM board b
+        <where>
+            <if test="searchTitle != null and searchTitle != ''">
+                AND b.title LIKE CONCAT('%', #{searchTitle}, '%')
+            </if>
+        </where>
+        limit #{limit} offset #{offset}
+    </select>
+</mapper>
+

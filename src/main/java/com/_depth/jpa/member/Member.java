@@ -22,8 +22,7 @@ public class Member {
     @Column(name = "USR_PWD")
     public String usrPwd;
 
-
-
+/*
     @OneToMany(mappedBy = "member")
-    private List<Board> boards = new ArrayList<>();
+    private List<Board> boards = new ArrayList<>();*/
 }

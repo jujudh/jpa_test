@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>아이템 목록</title>
+</head>
+<body>
+<div>
+<!--    <a href="/insertForm">등록하기</a>-->
+</div>
+<h1>게시판 목록</h1>
+<form>
+
+</form>
+<table border="1">
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>제목</th>
+        <th>내용</th>
+    </tr>
+    </thead>
+    <tbody>
+    <!-- boards는 Controller에서 model.addAttribute("boards", list); 로 전달 -->
+    <tr th:each="item : ${items}">
+        <td th:text="${item.ITEM_ID}">1</td>
+        <td th:text="${item.ITEM_NAME}">제목</td>
+        <td th:text="${item.ITEM_CMT}">내용</td>
+    </tr>
+    </tbody>
+</table>
+
+</body>
+</html>

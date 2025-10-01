@@ -13,26 +13,23 @@ import java.util.List;
 @Entity
 @Getter
 @Setter
-@SequenceGenerator(
-        name = "BOARD_SEQ_GENERATOR"
-        ,sequenceName = "BOARD_SEQ"
-        ,initialValue = 1,allocationSize=1
-)
 public class Board {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "BOARD_SEQ_GENERATOR")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     public Long id;
 
     public String title;
 
     public String content;
-
+    @Column(name = "")
+    public String img_file;
+/*
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "USR_ID")
     private Member member;
 
     @OneToMany(mappedBy = "board")
-    private List<Comment> comments = new ArrayList<>();
+    private List<Comment> comments = new ArrayList<>();*/
 
 }

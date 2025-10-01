@@ -19,11 +19,11 @@ public class Comment {
     private String CMT_DESCRIPTION;
 
 
-    @ManyToOne(fetch = FetchType.EAGER)
+/*    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "USR_ID")
     private Member member;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id")
-    private Board board;
+    private Board board;*/
 }

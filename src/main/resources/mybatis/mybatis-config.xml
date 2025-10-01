@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+
+    <!--Mybatis 설정 -->
+<!--    <settings>
+        <setting name="mapUnderscoreToCamelCase" value="true"></setting>
+    </settings>-->
+
+    <!-- 별칭 작성 부분 -->
+    <typeAliases>
+        <typeAlias type="com._depth.jpa.board.BoardSearchDto" alias="BoardSearchDto"/>
+        <typeAlias type="com._depth.jpa.board.BoardDto"  		alias="BoardDto"/>
+
+        <typeAlias type="com._depth.jpa.item.ItemSearchDto" alias="ItemSearchDto"/>
+        <typeAlias type="com._depth.jpa.item.ItemDto"  		alias="ItemDto"/>
+
+
+    </typeAliases>
+
+</configuration>
