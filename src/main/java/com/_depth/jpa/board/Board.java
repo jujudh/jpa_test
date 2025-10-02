@@ -22,7 +22,7 @@ public class Board {
     public String title;
 
     public String content;
-    @Column(name = "")
+    @Column(name = "img_file")
     public String img_file;
 /*
     @ManyToOne(fetch = FetchType.LAZY)
@@ -30,6 +30,7 @@ public class Board {
     private Member member;
 
     @OneToMany(mappedBy = "board")
-    private List<Comment> comments = new ArrayList<>();*/
+    private List<Comment> comments = new ArrayList<>();
+    */
 
 }

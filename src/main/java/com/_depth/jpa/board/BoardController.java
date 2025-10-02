@@ -1,7 +1,9 @@
 package com._depth.jpa.board;
 
 
+import com.util.FileUploadUtils;
 import lombok.RequiredArgsConstructor;
+import lombok.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -9,9 +11,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Controller
@@ -76,8 +81,13 @@ public class BoardController {
     }
 
     @PostMapping("/insert")
-    String insert(@RequestParam String title, @RequestParam String content) {
-        boardService.save(null, title, content);
+    String insert(@RequestParam String title, @RequestParam String content,
+                  MultipartHttpServletRequest multipartRequest) throws IOException {
+
+        // 파일 업로드 실행
+        List<Map<String, Object>> fileInfoList = FileUploadUtils.uploadFiles(multipartRequest, "C:/upload");
+
+        boardService.save(null, title, content,fileInfoList);
         return "redirect:/list";
     }
 
@@ -90,8 +100,10 @@ public class BoardController {
     }
 
     @PostMapping("/update")
-    String update(@RequestParam Long id, @RequestParam String title, @RequestParam String content) {
-        boardService.save(id, title, content);
+    String update(@RequestParam Long id, @RequestParam String title, @RequestParam String content
+            ,MultipartHttpServletRequest multipartRequest) throws IOException {
+        List<Map<String, Object>> fileInfoList = FileUploadUtils.uploadFiles(multipartRequest, "C:/upload");
+        boardService.save(id, title, content,fileInfoList);
         return "redirect:/list";
     }
 
