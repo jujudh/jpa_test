@@ -21,11 +21,11 @@ public class FileUploadUtils {
 
         List<Map<String, Object>> fileInfoList = new ArrayList<>();
 
-        // 날짜별 폴더 생성 예: /upload/2025/10/01
-        String datePath = LocalDate.now().toString().replace("-", File.separator);
+        // 날짜별 폴더 생성 예: /upload/20251010
+        String datePath = LocalDate.now().toString().replace("-", "");
         File uploadDir = new File(uploadRoot, datePath);
         if (!uploadDir.exists()) {
-            uploadDir.mkdirs(); // ✅ File + mkdirs() 방식
+            uploadDir.mkdirs();
         }
 
         Iterator<String> fileNames = request.getFileNames();
