@@ -1,14 +1,12 @@
 package com._depth.jpa.board;
 
-import com._depth.jpa.member.Member;
+import com._depth.jpa.file.FileDto;
+import com._depth.jpa.file.FileService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Map;
 
 @Service
 @Transactional
@@ -16,6 +14,7 @@ import java.util.Map;
 public class BoardService {
 
     private final BoardRepository boardRepository;
+    private final FileService fileService;
 
     private final BoardMapper boardMapper;
 
@@ -44,7 +43,7 @@ public class BoardService {
      * @param content   게시글 내용
      * @param fileInfoList 업로드된 파일 정보 리스트
      */
-    public void save(Long id, String title, String content, List<Map<String, Object>> fileInfoList) {
+    public void save(Long id, String title, String content,  List<FileDto> fileInfoList) {
 
         Board board;
 
@@ -60,13 +59,13 @@ public class BoardService {
         board.setTitle(title);
         board.setContent(content);
 
-        // 파일 정보 처리 (첫 번째 파일만 저장)
         if (fileInfoList != null && !fileInfoList.isEmpty()) {
-            // DB 컬럼이 단일 String이므로 저장 파일명만 넣음
-            board.setImg_file((String) fileInfoList.get(0).get("savedName"));
+            // 첫 번째 파일만 DB 컬럼에 저장
+            board.setImg_file(fileInfoList.get(0).getSavedName());
         }
 
         boardRepository.save(board);
+        fileService.saveFiles(fileInfoList);
     }
 
     public List<BoardDto> search(BoardSearchDto searchDto) {

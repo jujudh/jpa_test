@@ -7,6 +7,6 @@ import lombok.Setter;
 @Setter
 public class BoardSearchDto {
     private String searchTitle;
-    private int limit = 15;
+    private int limit = 30;
     private int offset = 0;
 }

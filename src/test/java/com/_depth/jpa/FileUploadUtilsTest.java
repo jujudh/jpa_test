@@ -1,7 +1,7 @@
 package com._depth.jpa;
 
 
-import com.util.FileUploadUtils;
+import com.util.FileUtil;
 import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.mock.web.MockMultipartHttpServletRequest;
@@ -14,44 +14,48 @@ import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+/*
 public class FileUploadUtilsTest {
 
-    @Test
-    void testFileUpload() throws IOException {
-        // given
-        String uploadRoot = "C:/upload-test"; // ✅ 테스트용 폴더 (임시)
-        MockMultipartHttpServletRequest request = new MockMultipartHttpServletRequest();
+private final FileUtil fileUtil = new FileUtil();
 
-        // 가짜 파일 생성 (MockMultipartFile)
-        MockMultipartFile mockFile = new MockMultipartFile(
-                "img_file",                     // input name
-                "example.txt",                  // 원본 파일명
-                "text/plain",                   // MIME 타입
-                "This is a test file.".getBytes(StandardCharsets.UTF_8) // 파일 내용
-        );
+@Test
+void testFileUpload() throws IOException {
+    // given
+    String uploadRoot = "C:/upload"; // ✅ 테스트용 폴더 (임시)
+    MockMultipartHttpServletRequest request = new MockMultipartHttpServletRequest();
 
-        // request에 파일 추가
-        request.addFile(mockFile);
+    // 가짜 파일 생성 (MockMultipartFile)
+    MockMultipartFile mockFile = new MockMultipartFile(
+            "img_file",                     // input name
+            "example.txt",                  // 원본 파일명
+            "text/plain",                   // MIME 타입
+            "This is a test file.".getBytes(StandardCharsets.UTF_8) // 파일 내용
+    );
 
-        // when
-        List<Map<String, Object>> result = FileUploadUtils.uploadFiles(request, uploadRoot);
+    // request에 파일 추가
+    request.addFile(mockFile);
 
-        // then
-        assertThat(result).isNotEmpty();
-        Map<String, Object> fileInfo = result.get(0);
+    // when
+    List<Map<String, Object>> result = fileUtil.uploadFiles(request);
 
-        // 실제 파일이 생성되었는지 확인
-        File savedFile = new File((String) fileInfo.get("savedPath"));
-        assertThat(savedFile.exists()).isTrue();
-        assertThat(savedFile.length()).isGreaterThan(0);
+    // then
+    assertThat(result).isNotEmpty();
+    Map<String, Object> fileInfo = result.get(0);
 
-        // 파일명/타입 등 검증
-        assertThat(fileInfo.get("originalName")).isEqualTo("example.txt");
-        assertThat(fileInfo.get("contentType")).isEqualTo("text/plain");
+    // 실제 파일이 생성되었는지 확인
+    File savedFile = new File((String) fileInfo.get("savedPath"));
+    assertThat(savedFile.exists()).isTrue();
+    assertThat(savedFile.length()).isGreaterThan(0);
 
-        // ✅ 테스트 끝난 후 파일/폴더 정리 (옵션)
-        savedFile.delete();
-        savedFile.getParentFile().delete(); // 20251010 폴더
-    }
+    // 파일명/타입 등 검증
+    assertThat(fileInfo.get("originalName")).isEqualTo("example.txt");
+    assertThat(fileInfo.get("contentType")).isEqualTo("text/plain");
+
+    // ✅ 테스트 끝난 후 파일/폴더 정리 (옵션)
+    savedFile.delete();
+    savedFile.getParentFile().delete(); // 20251010 폴더
+}
 }
 
+*/

@@ -1,22 +1,20 @@
 package com._depth.jpa.board;
-
-
-import com.util.FileUploadUtils;
+import com._depth.jpa.file.FileDto;
+import com._depth.jpa.file.FileInfo;
+import com._depth.jpa.file.FileInfoRepository;
+import com.util.FileUtil;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import lombok.Value;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 @Controller
@@ -27,7 +25,11 @@ public class BoardController {
 
     private final BoardRepository boardRepository;
 
+    private final FileInfoRepository  fileInfoRepository;
+
     private final BoardService boardService;
+
+    private final FileUtil fileUtil;
 
 
 /*    @GetMapping("/list")
@@ -84,10 +86,9 @@ public class BoardController {
     String insert(@RequestParam String title, @RequestParam String content,
                   MultipartHttpServletRequest multipartRequest) throws IOException {
 
-        // 파일 업로드 실행
-        List<Map<String, Object>> fileInfoList = FileUploadUtils.uploadFiles(multipartRequest, "C:/upload");
+        List<FileDto> fileInfoList = fileUtil.uploadFiles(multipartRequest);
 
-        boardService.save(null, title, content,fileInfoList);
+        boardService.save(null, title, content, fileInfoList);
         return "redirect:/list";
     }
 
@@ -102,8 +103,10 @@ public class BoardController {
     @PostMapping("/update")
     String update(@RequestParam Long id, @RequestParam String title, @RequestParam String content
             ,MultipartHttpServletRequest multipartRequest) throws IOException {
-        List<Map<String, Object>> fileInfoList = FileUploadUtils.uploadFiles(multipartRequest, "C:/upload");
+
+        List<FileDto> fileInfoList = fileUtil.uploadFiles(multipartRequest);
         boardService.save(id, title, content,fileInfoList);
+
         return "redirect:/list";
     }
 
@@ -117,6 +120,22 @@ public class BoardController {
     ResponseEntity<Object> delete(Board board) {
         boardRepository.delete(board);
         return ResponseEntity.status(200).body("삭제완료");
+    }
+
+    @GetMapping("/download/{id}")
+    public void downloadFile(@PathVariable Long id, HttpServletResponse response) throws IOException {
+        Board board = boardRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("잘못된 게시글 ID입니다."));
+
+        if (board.getImg_file() == null) {
+            throw new FileNotFoundException("첨부 파일이 없습니다.");
+        }
+        System.out.println("img_file = " + board.getImg_file());
+
+        // DB에서 파일 정보 조회
+        FileInfo fileInfo = board.getFile(); // 연결된 FileInfo 가져오기
+
+        fileUtil.downloadFile(fileInfo, response);
     }
 
 }
