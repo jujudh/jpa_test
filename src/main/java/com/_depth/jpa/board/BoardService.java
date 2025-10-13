@@ -1,6 +1,7 @@
 package com._depth.jpa.board;
 
 import com._depth.jpa.file.FileDto;
+import com._depth.jpa.file.FileInfo;
 import com._depth.jpa.file.FileService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -43,7 +44,7 @@ public class BoardService {
      * @param content   게시글 내용
      * @param fileInfoList 업로드된 파일 정보 리스트
      */
-    public void save(Long id, String title, String content,  List<FileDto> fileInfoList) {
+    public void save(Long id, String title, String content, List<FileDto> fileInfoList) {
 
         Board board;
 
@@ -60,13 +61,23 @@ public class BoardService {
         board.setContent(content);
 
         if (fileInfoList != null && !fileInfoList.isEmpty()) {
-            // 첫 번째 파일만 DB 컬럼에 저장
-            board.setImg_file(fileInfoList.get(0).getSavedName());
+            // 첫 번째 파일만 처리 (1:1 가정)
+            FileDto fileDto = fileInfoList.get(0);
+
+            // 1) FileInfo 엔티티로 변환
+            FileInfo fileEntity = fileDto.toEntity();
+
+            // 2) Board와 FileInfo 연결
+            board.setFile(fileEntity);
+
+            // 3) img_file 컬럼에도 저장하고 싶다면
+            board.setImg_file(fileDto.getSavedName());
         }
 
+        // Board 저장 → CascadeType.ALL로 FileInfo도 같이 저장됨
         boardRepository.save(board);
-        fileService.saveFiles(fileInfoList);
     }
+
 
     public List<BoardDto> search(BoardSearchDto searchDto) {
         return boardMapper.search(searchDto);
