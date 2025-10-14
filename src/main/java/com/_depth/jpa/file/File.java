@@ -12,11 +12,15 @@ import java.time.LocalDate;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class FileInfo {
+public class File {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Column(name = "file_id", nullable = false)
+    private Long fileId;
+
+    @Column(name = "file_value")
+    private String fileValue;        // 업로드 당시 원본 파일명
 
     @Column(name = "file_name", nullable = false)
     private String fileName;        // 업로드 당시 원본 파일명

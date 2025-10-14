@@ -1,10 +1,7 @@
 package com.util;
 
 import com._depth.jpa.file.FileDto;
-import com._depth.jpa.file.FileInfo;
-import com._depth.jpa.file.FileInfoRepository;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
@@ -18,69 +15,80 @@ import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.*;
 
-@Component("FileUtil")
 public class FileUtil {
-
-
-    @Value("${file.upload-dir}")
-    private String uploadDirectory;
-
-    @Value("${file.max-size}")
-    private Long maxFileSize;
-
-    private final FileInfoRepository fileInfoRepository;
-
-    public FileUtil(FileInfoRepository fileInfoRepository) {
-        this.fileInfoRepository = fileInfoRepository;
-    }
-
     /**
-     * 파일 업로드
-     * 파일 정보를 List<Map<String,Object>> 형태로 반환
+     * MultipartHttpServletRequest를 통해 업로드된 파일들을 서버에 저장하고,
+     * 파일 정보를 FileDto 리스트로 반환하는 메서드.
+     *
+     * 업로드 파일은 날짜별 폴더(yyyyMMdd) 아래에 저장되며,
+     * 각 파일에 대해 FileDto 객체를 생성하여 파일명, 경로, 크기, MIME 타입 등을 담습니다.</p>
+     *
+     * @param request 업로드된 파일들을 포함하는 MultipartHttpServletRequest
+     * @return 업로드된 파일들의 메타데이터를 담은 FileDto 객체 리스트
+     * @throws IOException 파일 저장 중 문제가 발생하면 IOException 발생
      */
-    public List<FileDto> uploadFiles(MultipartHttpServletRequest request) throws IOException {
+    public static List<FileDto> uploadFiles(String uploadDirectory,
+            MultipartHttpServletRequest request
+    ) throws IOException {
+
         List<FileDto> fileInfoList = new ArrayList<>();
+
+        // 날짜별 폴더 생성
         String datePath = LocalDate.now().toString().replace("-", "");
         File uploadDir = new File(uploadDirectory, datePath);
-        if (!uploadDir.exists()) uploadDir.mkdirs();
+        if (!uploadDir.exists()) {
+            uploadDir.mkdirs();
+        }
 
         Iterator<String> fileNames = request.getFileNames();
+
         while (fileNames.hasNext()) {
             String inputName = fileNames.next();
             List<MultipartFile> files = request.getFiles(inputName);
 
             for (MultipartFile file : files) {
-                if (file.isEmpty()) continue;
-                String originalFileName = file.getOriginalFilename();
-                if (originalFileName == null) continue;
+                FileDto fileInfo = getFileDto(uploadDirectory,file, datePath, inputName);
+                if (fileInfo == null) continue;
 
-                if (file.getSize() > maxFileSize) {
-                    throw new IOException("파일 용량 초과");
-                }
-
-                String newFileName = UUID.randomUUID().toString().replace("-", "")
-                        + originalFileName.substring(originalFileName.lastIndexOf("."));
-                Path filePath = Paths.get(uploadDirectory, datePath, newFileName);
-                file.transferTo(filePath.toFile());
-                String relativeFilePath = datePath + "/" + newFileName;
-
-                FileDto fileDto = new FileDto();
-                fileDto.setInputName(inputName);
-                fileDto.setOriginalName(originalFileName);
-                fileDto.setSavedName(relativeFilePath);
-                fileDto.setSavedPath(filePath.toString());
-                fileDto.setSize(file.getSize());
-                fileDto.setContentType(file.getContentType());
-                fileDto.setUploadDate(LocalDate.now());
-
-                fileInfoList.add(fileDto);
+                fileInfoList.add(fileInfo);
             }
         }
+
         return fileInfoList;
     }
 
+    private static FileDto getFileDto(String uploadDirectory,MultipartFile file, String datePath, String inputName) throws IOException {
+        if (file.isEmpty()) return null;
 
-    private String generateUniqueFileName(String originalFileName) {
+        String originalFileName = file.getOriginalFilename();
+        if (originalFileName == null) return null;
+
+/*
+        if (file.getSize() > maxFileSize) {
+            throw new IOException("파일 용량은 " + (maxFileSize / (1024 * 1024)) + "MB 이하만 가능합니다.");
+        }*/
+
+        // 파일 저장
+        String newFileName = generateUniqueFileName(originalFileName);
+        Path filePath = Paths.get(uploadDirectory, datePath, newFileName);
+        file.transferTo(filePath.toFile());
+
+        String relativeFilePath = datePath + "/" + newFileName;
+
+
+        FileDto fileInfo = new FileDto(
+                inputName,
+                originalFileName,
+                relativeFilePath,
+                filePath.toString(),
+                file.getSize(),
+                file.getContentType(),
+                LocalDate.now()
+        );
+        return fileInfo;
+    }
+
+    private static String generateUniqueFileName(String originalFileName) {
         String ext = "";
         int dotIndex = originalFileName.lastIndexOf(".");
         if (dotIndex != -1) {
@@ -93,10 +101,17 @@ public class FileUtil {
     /**
      * 파일 다운로드
      */
-    public void downloadFile(FileInfo fileInfo, HttpServletResponse response) throws IOException {
-        // DB에서 저장된 상대경로
-        Path filePath = Paths.get(uploadDirectory).resolve(fileInfo.getFilePath()).normalize();
+    public static void downloadFile(String uploadDirectory,String relativeFilePath, HttpServletResponse response) throws IOException {
+        //uploadDirectory와 db에 저장된 파일 경로를 결합.
+        Path filePath = Paths.get(uploadDirectory).resolve(relativeFilePath).normalize();
         File file = filePath.toFile();
+        System.out.println("filepath = " + file.getAbsolutePath());
+        
+        //해당 파일경로가 uploadDirectory 하위에 위치하고 있는지 확인
+        if (!filePath.startsWith(Paths.get(uploadDirectory).toAbsolutePath())) {
+            response.sendError(HttpServletResponse.SC_FORBIDDEN, "잘못된 접근입니다.");
+            return;
+        }
 
         // 파일 존재 확인
         if (!file.exists() || !file.isFile()) {
@@ -104,14 +119,14 @@ public class FileUtil {
             return;
         }
 
-        // DB에서 가져온 contentType 사용
-        String contentType = fileInfo.getContentType();
-        if (contentType == null || contentType.isEmpty()) {
-            contentType = "application/octet-stream"; // fallback
+        // MIME 타입 자동 지정
+        String contentType = Files.probeContentType(filePath);
+        if (contentType == null) {
+            contentType = "application/octet-stream";
         }
 
-        // 한글 파일명 깨짐 방지 (원본 파일명 사용)
-        String encodedFileName = URLEncoder.encode(fileInfo.getFileName(), "UTF-8")
+        // 한글 파일명 깨짐 방지
+        String encodedFileName = URLEncoder.encode(file.getName(), "UTF-8")
                 .replaceAll("\\+", "%20");
 
         // 응답 헤더 설정
@@ -131,5 +146,4 @@ public class FileUtil {
             }
         }
     }
-
 }

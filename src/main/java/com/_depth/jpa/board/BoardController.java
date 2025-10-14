@@ -1,7 +1,5 @@
 package com._depth.jpa.board;
 import com._depth.jpa.file.FileDto;
-import com._depth.jpa.file.FileInfo;
-import com._depth.jpa.file.FileInfoRepository;
 import com.util.FileUtil;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -25,11 +23,8 @@ public class BoardController {
 
     private final BoardRepository boardRepository;
 
-    private final FileInfoRepository  fileInfoRepository;
-
     private final BoardService boardService;
 
-    private final FileUtil fileUtil;
 
 
 /*    @GetMapping("/list")
@@ -86,8 +81,9 @@ public class BoardController {
     String insert(@RequestParam String title, @RequestParam String content,
                   MultipartHttpServletRequest multipartRequest) throws IOException {
 
-        List<FileDto> fileInfoList = fileUtil.uploadFiles(multipartRequest);
+        List<FileDto> fileInfoList = FileUtil.uploadFiles("C:/upload",multipartRequest);
 
+        // ✅ 서비스에 전달 (List<FileDto> 타입)
         boardService.save(null, title, content, fileInfoList);
         return "redirect:/list";
     }
@@ -104,7 +100,7 @@ public class BoardController {
     String update(@RequestParam Long id, @RequestParam String title, @RequestParam String content
             ,MultipartHttpServletRequest multipartRequest) throws IOException {
 
-        List<FileDto> fileInfoList = fileUtil.uploadFiles(multipartRequest);
+        List<FileDto> fileInfoList = FileUtil.uploadFiles("C://upload",multipartRequest);
         boardService.save(id, title, content,fileInfoList);
 
         return "redirect:/list";
@@ -132,10 +128,7 @@ public class BoardController {
         }
         System.out.println("img_file = " + board.getImg_file());
 
-        // DB에서 파일 정보 조회
-        FileInfo fileInfo = board.getFile(); // 연결된 FileInfo 가져오기
-
-        fileUtil.downloadFile(fileInfo, response);
+        FileUtil.downloadFile("C:/upload",board.getImg_file(), response);
     }
 
 }

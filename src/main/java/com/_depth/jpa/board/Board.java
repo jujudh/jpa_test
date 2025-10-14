@@ -2,7 +2,6 @@ package com._depth.jpa.board;
 
 
 import com._depth.jpa.Comment.Comment;
-import com._depth.jpa.file.FileInfo;
 import com._depth.jpa.member.Member;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -33,9 +32,5 @@ public class Board {
     @OneToMany(mappedBy = "board")
     private List<Comment> comments = new ArrayList<>();
     */
-
-    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinColumn(name = "id")
-    private FileInfo file;
 
 }

@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>파일 등록</title>
+    <link href="/main.css" rel="stylesheet">
+</head>
+<body>
+<h2>파일 등록</h2>
+<form action="/file-insert" method="post" enctype="multipart/form-data">
+
+
+    <!-- 파일 업로드 (멀티파일 가능) -->
+    <label for="file_value">파일 선택:</label>
+    <input type="file" id="file_value" name="file_value" multiple><br><br>
+
+    <button type="submit">등록</button>
+</form>
+</body>
+</html>

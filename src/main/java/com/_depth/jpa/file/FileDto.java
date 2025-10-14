@@ -20,7 +20,7 @@ public class FileDto {
     private LocalDate uploadDate;
 
 
-    public FileInfo toEntity() {
+/*    public FileInfo toEntity() {
         FileInfo entity = new FileInfo();
         entity.setFileName(this.getOriginalName());
         entity.setFilePath(this.getSavedName()); // 상대경로
@@ -28,7 +28,7 @@ public class FileDto {
         entity.setContentType(this.getContentType());
         entity.setUploadDate(this.getUploadDate());
         return entity;
-    }
+    }*/
 
 }
 
