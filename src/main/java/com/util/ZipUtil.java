@@ -12,7 +12,6 @@ import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.function.Function;
 import java.util.zip.ZipEntry;
@@ -31,9 +30,8 @@ public class ZipUtil {
      * 파일(또는 폴더)을 압축하여 byte 배열로 반환
      *
      * @param sourceFile 압축 대상 파일 또는 폴더
-     * @return ZIP 파일의 byte 배열
+     * @throws RuntimeException 파일 읽기/쓰기 중 오류 발생 시
      */
-
     // ---------------- 단일 파일/폴더 압축 ----------------
     public static byte[] zipFile(File sourceFile) {
         //ZIP 압축 데이터를 메모리에 바이트 배열로 저장하기 위함.
@@ -51,8 +49,15 @@ public class ZipUtil {
         }
     }
 
-    // ---------------- 여러 파일/폴더 압축 ----------------
-    //단일 폴더와 다르게 리스트 형태로 zip 추가
+    /**
+     * 여러 파일 또는 폴더를 단일 ZIP 파일로 압축하여 byte 배열로 반환합니다.
+     * 내부적으로 {@link #addFileToZip(File, ZipOutputStream, String)}를 사용하여
+     * 각 파일/폴더를 재귀적으로 ZIP 스트림에 추가합니다.
+     *
+     * @param sources 압축할 파일 또는 폴더 목록
+     * @return ZIP 압축 결과가 담긴 byte 배열
+     * @throws RuntimeException 파일 읽기/쓰기 중 오류 발생 시
+     */
     public static byte[] zipFilesAndFolders(List<File> sources) {
         try (ByteArrayOutputStream baos = new ByteArrayOutputStream();
              ZipOutputStream zos = new ZipOutputStream(baos)) {
@@ -117,7 +122,16 @@ public class ZipUtil {
         }
     }
 
-    // ---------------- 재귀 방식으로 파일/폴더 추가 ----------------
+    /**
+     * 재귀 방식으로 단일 파일 또는 폴더를 ZIP 스트림에 추가합니다.
+     * ZIP 내부 경로를 유지하며, 폴더라면 하위 파일/폴더를 재귀적으로 처리합니다.
+     * 파일은 버퍼를 이용해 스트림에 기록됩니다.
+     *
+     * @param file             압축할 파일 또는 폴더
+     * @param zos              ZIP 출력 스트림 (ZipOutputStream)
+     * @param parentFolderName ZIP 내부 상위 폴더 경로, null이면 최상위로 추가
+     * @throws RuntimeException 파일 읽기/쓰기 중 오류 발생 시
+     */
     private static void addFileToZip(File file, ZipOutputStream zos, String parentFolderName) {
         /* ZIP 내부 경로 결정 */
         String currentPath = StringUtils.hasText(parentFolderName)
@@ -190,6 +204,7 @@ public class ZipUtil {
                     entryFile = new File(dstPath, entryName);
                 } else {
                     Path path = Path.of(dstPath, entryName);
+                    /* 압축 해제 시 같은 이름의 파일이 이미 존재하면 새 이름을 만들어서 덮어쓰기 방지 */
                     entryFile = renameDuplicatedFilename.apply(path).toFile();
                 }
                 /* ZIP 내 폴더 구조를 그대로 재현 */
@@ -226,6 +241,4 @@ public class ZipUtil {
             zip.extractFile(header, dstPath);
         }
     }
-
-
 }
