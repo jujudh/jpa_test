@@ -1,12 +1,18 @@
 package com.util;
 
 import io.micrometer.common.lang.Nullable;
+import net.lingala.zip4j.ZipFile;
+import net.lingala.zip4j.exception.ZipException;
+import net.lingala.zip4j.model.FileHeader;
+import net.lingala.zip4j.model.ZipParameters;
+import net.lingala.zip4j.model.enums.EncryptionMethod;
 import org.springframework.util.StringUtils;
 
 import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.function.Function;
 import java.util.zip.ZipEntry;
@@ -59,6 +65,55 @@ public class ZipUtil {
             return baos.toByteArray();
         } catch (IOException e) {
             throw new RuntimeException("파일 압축 중 오류 발생", e);
+        }
+    }
+    /**
+     * 단일 파일/폴더를 비밀번호를 걸어서 압축합니다 (Zip4j 사용)
+     *
+     * @param sourceFile 압축 대상 파일 또는 폴더
+     * @param targetZip  생성될 ZIP 파일 경로
+     * @param password   설정할 비밀번호
+     */
+    public static void zipFileWithPassword(File sourceFile, File targetZip, String password) {
+        try {
+            ZipFile zipFile = new ZipFile(targetZip, password.toCharArray());
+            ZipParameters params = new ZipParameters();
+            params.setEncryptFiles(true);
+            params.setEncryptionMethod(EncryptionMethod.ZIP_STANDARD); // 또는 AES
+
+            if (sourceFile.isDirectory()) {
+                zipFile.addFolder(sourceFile, params);
+            } else {
+                zipFile.addFile(sourceFile, params);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("비밀번호 압축 중 오류 발생", e);
+        }
+    }
+
+    /**
+     * 여러 파일/폴더를 비밀번호를 걸어서 압축합니다 (Zip4j 사용)
+     *
+     * @param sources   압축 대상 파일/폴더 목록
+     * @param targetZip 생성될 ZIP 파일 경로
+     * @param password  설정할 비밀번호
+     */
+    public static void zipFilesAndFoldersWithPassword(List<File> sources, File targetZip, String password) {
+        try {
+            ZipFile zipFile = new ZipFile(targetZip, password.toCharArray());
+            ZipParameters params = new ZipParameters();
+            params.setEncryptFiles(true);
+            params.setEncryptionMethod(EncryptionMethod.ZIP_STANDARD); // 또는 AES
+
+            for (File file : sources) {
+                if (file.isDirectory()) {
+                    zipFile.addFolder(file, params);
+                } else {
+                    zipFile.addFile(file, params);
+                }
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("비밀번호 압축 중 오류 발생", e);
         }
     }
 
@@ -150,5 +205,27 @@ public class ZipUtil {
             }
         }
     }
+
+    /**
+     * 비밀번호가 설정된 ZIP 파일을 지정 경로에 압축 해제합니다.
+     * 기존 파일/폴더를 삭제하지 않고, 중복 시 덮어씁니다.
+     *
+     * @param zipFile  압축 파일
+     * @param dstPath  압축 해제될 경로
+     * @param password ZIP 파일 비밀번호
+     * @throws ZipException 압축 해제 중 오류 발생 시
+     */
+    public static void unZipFileWithPassword(File zipFile, String dstPath, String password) throws ZipException {
+        ZipFile zip = new ZipFile(zipFile, password.toCharArray());
+
+        /* ZIP 안에 있는 파일/폴더 정보를 가져온다. */
+        List<FileHeader> headers = zip.getFileHeaders();
+        for (FileHeader header : headers) {
+            if (header.isDirectory()) continue;
+            /* 해당 파일을 dsPath 위치로 추출 */
+            zip.extractFile(header, dstPath);
+        }
+    }
+
 
 }
